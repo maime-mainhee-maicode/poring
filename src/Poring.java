@@ -2,6 +2,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Poring implements Runnable {
     private JFrame fr;
@@ -10,15 +12,21 @@ public class Poring implements Runnable {
     private final int index;
     private int x, y, vibrateRate;
     private boolean alive;
+    private Timer timer;
     private GUI game;
 
     public Poring(int index) {
         this(index, 15);
     }
 
+    public Poring(Poring poring) {
+        this(poring.index, poring.vibrateRate);
+    }
+
     public Poring(int index, int vibrateRate) {
         this.index = index;
         this.vibrateRate = vibrateRate;
+        this.timer = new Timer();
         this.init();
     }
 
@@ -53,28 +61,24 @@ public class Poring implements Runnable {
         this.fr.setLocation(x, y);
         this.fr.setVisible(true);
         this.alive = true;
-        this.vibrate();
     }
 
     public void vibrate() {
-        try {
-            while (this.alive) {
-                Thread.sleep(125l);
-                this.random = new Random();
-                this.x += this.random.nextInt(this.vibrateRate) * (this.random.nextDouble() > 0.5 ? -1 : 1);
-                this.y += this.random.nextInt(this.vibrateRate) * (this.random.nextDouble() > 0.5 ? -1 : 1);
-                this.x = setBoundaryX(this.x);
-                this.y = setBoundaryY(this.y);
-                this.fr.setLocation(this.x, this.y);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.vibrate(this.vibrateRate);
+    }
+
+    public void vibrate(int vibrateRate) {
+        this.random = new Random();
+        this.x += this.random.nextInt(vibrateRate) * (this.random.nextDouble() > 0.5 ? -1 : 1);
+        this.y += this.random.nextInt(vibrateRate) * (this.random.nextDouble() > 0.5 ? -1 : 1);
+        this.x = setBoundaryX(this.x);
+        this.y = setBoundaryY(this.y);
+        this.fr.setLocation(this.x, this.y);
     }
 
     public void spawn() {
-        Thread thread = new Thread(this);
-        thread.start();
+        PoringTask task = new PoringTask(this);
+        this.timer.schedule(task, 100, 100);
     }
 
     public void die() {
@@ -82,8 +86,14 @@ public class Poring implements Runnable {
             this.alive = false;
             this.fr.setVisible(false);
             this.game.setScore(game.getScore() + 1);
-            Thread.sleep(1000l); // to make sure thread would stop from running
-            Spawner.getInstance().getPoring(this.index - 1).spawn();
+
+            this.timer.purge();
+            this.timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Spawner.getInstance().getPoring(index - 1).spawn();
+                }
+            }, 1000l);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,5 +120,13 @@ public class Poring implements Runnable {
         boolean top = y >= 0;
         boolean bottom = y + this.fr.getHeight() <= dimension.getHeight();
         return left && right && top && bottom;
+    }
+
+    public boolean isAlive() {
+        return this.alive;
+    }
+
+    public Poring clone() {
+        return new Poring(this);
     }
 }

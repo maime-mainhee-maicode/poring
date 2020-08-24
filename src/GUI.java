@@ -33,7 +33,7 @@ public class GUI implements ActionListener {
 
     public void startGame() {
         scoreboard.setText("Score : " + score);
-        Spawner spawner = Spawner.getInstance().createSpawner(1);
+        Spawner spawner = Spawner.getInstance().createSpawner(5);
         for (Poring poring : spawner.getPorings()) {
             poring.spawn();
         }
