@@ -19,6 +19,7 @@ public class Spawner {
         if (instance == null) instance = new Spawner();
         return instance;
     }
+    
 
     public Spawner createSpawner(int amount) {
         if (porings != null && porings.size() > 0) {

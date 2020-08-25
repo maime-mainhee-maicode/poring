@@ -5,7 +5,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Poring implements Runnable {
+public class Poring implements Runnable, Cloneable {
     private JFrame fr;
     private JLabel image, count;
     private Random random;
@@ -126,7 +126,14 @@ public class Poring implements Runnable {
         return this.alive;
     }
 
-    public Poring clone() {
-        return new Poring(this);
+    public Poring clone(){
+    	Poring clone = null;
+    	try {
+    		clone = porings.clone();
+    	} catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return clone;
+//        return new Poring(this);
     }
 }
