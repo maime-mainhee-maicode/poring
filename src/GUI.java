@@ -10,6 +10,7 @@ public class GUI implements ActionListener {
     private int score;
     private int time;
     private static GUI instance;
+    private boolean status = true;
 
     public void init() {
         btn = new JButton("Start");
@@ -50,7 +51,8 @@ public class GUI implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("Start")) {
+        if (e.getActionCommand().equals("Start") && status) {
+            status = false;
             this.startGame();
         }
     }
